@@ -1,19 +1,12 @@
-"""
-SRT subtitle file parser.
-
-Parses .srt files and yields cue entries with index, start/end timestamps, and text.
-Non-destructive: does not modify timestamps, does not merge or split cues.
-"""
+"""SRT subtitle file parser."""
 
 import re
 from dataclasses import dataclass
-from typing import Iterator, List, Optional
+from typing import List
 
 
 @dataclass
 class SRTEntry:
-    """A single SRT cue entry."""
-
     index: int
     start_ms: int
     end_ms: int
@@ -25,11 +18,10 @@ class SRTEntry:
 
 
 def _parse_timestamp(ts: str) -> int:
-    """Convert SRT timestamp (HH:MM:SS,mmm) to milliseconds."""
     ts = ts.strip().replace(",", ".")
     parts = ts.split(":")
     if len(parts) != 3:
-        raise ValueError(f"Invalid timestamp format: {ts}")
+        raise ValueError(f"Invalid timestamp: {ts}")
     hours, minutes, seconds = parts
     sec_parts = seconds.split(".")
     sec = int(sec_parts[0])
@@ -38,53 +30,56 @@ def _parse_timestamp(ts: str) -> int:
 
 
 def _clean_text(text: str) -> str:
-    """Non-destructive text clean: whitespace normalisation and zero-width removal only."""
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", text)
     lines = [line.strip() for line in text.split("\n")]
     return " ".join(line for line in lines if line)
 
 
-# Pattern: index on its own line, then timestamp line, then text lines until blank
-_TIMESTAMP_RE = re.compile(
-    r"(\d{1,6})\s*\n(\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2},\d{3})\s*\n((?:.*\n?)*?)(?=\n\n|\n?$)",
-    re.UNICODE,
-)
-
-
 def parse_srt(content: str) -> List[SRTEntry]:
-    """Parse SRT file content and return a list of SRTEntry objects.
-
-    Does NOT modify timestamps or text content.
-    """
     entries: List[SRTEntry] = []
-
-    content = content.replace("\ufeff", "")
-    start = 0
-    while True:
-        match = _TIMESTAMP_RE.search(content, start)
-        if not match:
-            break
-        idx = int(match.group(1))
-        start_ms = _parse_timestamp(match.group(2))
-        end_ms = _parse_timestamp(match.group(3))
-        raw_text = match.group(4).rstrip("\n")
-
-        if end_ms <= start_ms:
-            start = match.end()
+    content = content.replace("\ufeff", "").replace("\r\n", "\n").replace("\r", "\n")
+    
+    # Split into blocks separated by blank lines
+    blocks_raw = re.split(r"\n{2,}", content)
+    
+    for block in blocks_raw:
+        block = block.strip()
+        if not block:
             continue
-
-        text = _clean_text(raw_text)
+        
+        lines = block.split("\n")
+        if len(lines) < 3:
+            continue
+        
+        # Parse index
+        try:
+            idx = int(lines[0].strip())
+        except ValueError:
+            continue
+        
+        # Parse timestamp line
+        ts_match = re.match(
+            r"(\d{2}:\d{2}:\d{2},\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2},\d{3})",
+            lines[1].strip(),
+        )
+        if not ts_match:
+            continue
+        
+        try:
+            start_ms = _parse_timestamp(ts_match.group(1))
+            end_ms = _parse_timestamp(ts_match.group(2))
+        except ValueError:
+            continue
+        
+        # Extract text (remaining lines)
+        text = _clean_text("\n".join(lines[2:]))
         if not text:
-            start = match.end()
             continue
-
+        
+        if end_ms <= start_ms:
+            continue
+        
         entries.append(SRTEntry(index=idx, start_ms=start_ms, end_ms=end_ms, text=text))
-        start = match.end()
-
+    
     return entries
-
-
-def parse_srt_lines(lines: Iterator[str]) -> List[SRTEntry]:
-    """Parse SRT from a line iterator (useful for streaming)."""
-    return parse_srt("".join(lines))
