@@ -793,3 +793,72 @@ class AvailableEffectsResponse(BaseModel):
     """Response listing all available effect types."""
 
     effects: List[AvailableEffect]
+
+
+class SRTGenerationRequest(BaseModel):
+    """Request model for SRT-to-speech generation with fixed timeline."""
+
+    profile_id: str
+    language: str = Field(
+        default="en",
+        pattern="^(zh|en|ja|ko|de|fr|ru|pt|es|it|he|ar|da|el|fi|hi|ms|nl|no|pl|sv|sw|tr)$",
+    )
+    engine: Optional[str] = Field(
+        default="qwen",
+        pattern="^(qwen|qwen_custom_voice|luxtts|chatterbox|chatterbox_turbo|tada|kokoro)$",
+    )
+    seed: Optional[int] = Field(None, ge=0)
+    model_size: Optional[str] = Field(
+        default="1.7B", pattern="^(1\\.7B|0\\.6B|1B|3B)$"
+    )
+    max_retries: int = Field(default=2, ge=0, le=5)
+    normalize: bool = Field(default=True)
+    risk_mode: Optional[str] = Field(
+        default="mark_only",
+        pattern="^(mark_only|mark_and_report)$",
+        description="mark_only = flag only; mark_and_report = include in response details",
+    )
+    export_mix: bool = Field(
+        default=False,
+        description="If true, mix all cues into one audio and return the URL",
+    )
+    effects_chain: Optional[List[EffectConfig]] = Field(
+        None,
+        description="Effects chain to apply to each generated clip",
+    )
+
+
+class SRTCueItem(BaseModel):
+    """Risk and fit metadata for a single subtitle cue."""
+
+    cue_index: int
+    cue_start_ms: int
+    cue_end_ms: int
+    text: str
+    raw_duration_ms: int
+    fitted_duration_ms: int
+    fit_ratio: float
+    fit_risk: str = Field(
+        ..., pattern="^(low|medium|high)$"
+    )
+    fit_policy: str = "preserve_text"
+    generation_id: Optional[str] = None
+    status: str = "pending"
+    error: Optional[str] = None
+
+
+class SRTGenerationResponse(BaseModel):
+    """Response for SRT generation."""
+
+    story_id: str
+    story_name: str
+    total_cues: int
+    success_count: int
+    failed_count: int
+    items: List[SRTCueItem]
+    mix_audio_path: Optional[str] = None
+    status: str = "completed"
+    error: Optional[str] = None
+
+    class Config:
+        from_attributes = True
