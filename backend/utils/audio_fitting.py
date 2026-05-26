@@ -190,8 +190,12 @@ def fit_audio_to_duration(
     )
 
 
+class FFmpegNotFoundError(RuntimeError):
+    """Raised when ffmpeg/ffprobe is not available on the system."""
+
+
 def _run_ffmpeg(args: list) -> None:
-    """Run ffmpeg with given arguments, logging warnings."""
+    """Run ffmpeg with given arguments, raising on missing binary."""
     try:
         result = subprocess.run(
             ["ffmpeg", "-hide_banner", "-loglevel", "warning"] + args,
@@ -201,7 +205,10 @@ def _run_ffmpeg(args: list) -> None:
         if result.returncode != 0:
             logger.warning("ffmpeg stderr: %s", result.stderr.strip())
     except FileNotFoundError:
-        logger.error("ffmpeg not found — audio fitting will be skipped")
+        raise FFmpegNotFoundError(
+            "ffmpeg is not installed or not on PATH. "
+            "Install it from https://ffmpeg.org and ensure it is accessible."
+        )
 
 
 def _get_audio_duration_ms(path: str) -> int:

@@ -249,7 +249,7 @@ export function SRTTab() {
                             </span>
                           </td>
                           <td className="px-4 py-3">
-                            {item.status === 'success' ? (
+                            {item.status === 'completed' ? (
                               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                             ) : (
                               <span className="text-destructive text-xs" title={item.error}>失败</span>

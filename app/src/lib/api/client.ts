@@ -927,6 +927,13 @@ class ApiClient {
     profileId: string,
     engine: string,
     language: string,
+    options?: {
+      modelSize?: string;
+      maxRetries?: number;
+      normalize?: boolean;
+      riskMode?: string;
+      exportMix?: boolean;
+    },
   ): Promise<SRTGenerationResponse> {
     const url = `${this.getBaseUrl()}/generate/srt`;
     const formData = new FormData();
@@ -934,6 +941,11 @@ class ApiClient {
     formData.append('profile_id', profileId);
     formData.append('language', language);
     formData.append('engine', engine);
+    if (options?.modelSize) formData.append('model_size', options.modelSize);
+    if (options?.maxRetries !== undefined) formData.append('max_retries', String(options.maxRetries));
+    if (options?.normalize !== undefined) formData.append('normalize', String(options.normalize));
+    if (options?.riskMode) formData.append('risk_mode', options.riskMode);
+    if (options?.exportMix !== undefined) formData.append('export_mix', String(options.exportMix));
 
     const response = await fetch(url, { method: 'POST', body: formData });
 

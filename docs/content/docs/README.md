@@ -12,8 +12,8 @@ This directory contains the documentation for Voicebox, built with [Fumadocs](ht
 From the `docs/` directory:
 
 ```bash
-bun install
-bun run dev
+pnpm install
+pnpm run dev
 ```
 
 The docs will be available at `http://localhost:3000`.

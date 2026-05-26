@@ -1,7 +1,8 @@
 packages:
-  - 'app'
-  - 'web'
-  - 'landing'
+- 'app'
+- 'tauri'
+- 'web'
+- 'landing'
 allowBuilds:
   esbuild: true
   sharp: true

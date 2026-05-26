@@ -527,9 +527,13 @@ export interface SRTCueResult {
   cue_start_ms: number;
   cue_end_ms: number;
   text: string;
+  raw_duration_ms: number;
+  fitted_duration_ms: number;
   fit_ratio: number;
   fit_risk: 'low' | 'medium' | 'high';
-  status: 'success' | 'failed';
+  fit_policy: string;
+  generation_id?: string;
+  status: 'completed' | 'failed' | 'pending';
   error?: string;
 }
 

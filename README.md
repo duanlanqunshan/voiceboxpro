@@ -434,7 +434,7 @@ just dev     # starts backend + desktop app
 
 Install [just](https://github.com/casey/just): `brew install just` or `cargo install just`. Run `just --list` to see all commands.
 
-**Prerequisites:** [pnpm](https://pnpm.io), [Rust](https://rustup.rs), [Python 3.11+](https://python.org), [Tauri Prerequisites](https://v2.tauri.app/start/prerequisites/), and [Xcode](https://developer.apple.com/xcode/) on macOS.
+**Prerequisites:** [pnpm](https://pnpm.io), [Rust](https://rustup.rs), [Python 3.11+](https://python.org), [FFmpeg](https://ffmpeg.org/download.html), [Tauri Prerequisites](https://v2.tauri.app/start/prerequisites/), and [Xcode](https://developer.apple.com/xcode/) on macOS.
 
 The repo ships a pre-wired `.mcp.json` at the root — running Claude Code inside this checkout picks up the Voicebox MCP tools automatically once the dev app is running.
 

@@ -13,10 +13,19 @@ Thank you for your interest in contributing to Voicebox! This document provides 
 
 ### Prerequisites
 
-- **[Bun](https://bun.sh)** - Fast JavaScript runtime and package manager
-  ```bash
-  curl -fsSL https://bun.sh/install | bash
-  ```
+- **[pnpm](https://pnpm.io)** - Fast, disk-efficient JavaScript package manager
+```bash
+npm install -g pnpm
+```
+
+- **[FFmpeg](https://ffmpeg.org/download.html)** - Audio processing (required for SRT subtitle-to-speech feature)
+```bash
+# macOS
+brew install ffmpeg
+# Windows — download from https://ffmpeg.org/download.html and add to PATH
+# Linux
+sudo apt install ffmpeg
+```
 
 - **[Python 3.11+](https://python.org)** - For backend development
   ```bash
@@ -127,7 +136,7 @@ This downloads the OpenAPI schema and generates the TypeScript client in `app/sr
 
 To optimize images and videos for the web, run:
 ```bash
-bun run convert:assets
+pnpm run convert:assets
 ```
 
 This script:
@@ -295,7 +304,7 @@ When adding new API endpoints:
 4. **Update OpenAPI schema** (automatic with FastAPI)
 5. **Regenerate TypeScript client:**
    ```bash
-   bun run generate:api
+   pnpm run generate:api
    ```
 6. **Update `backend/README.md`** with endpoint documentation
 
