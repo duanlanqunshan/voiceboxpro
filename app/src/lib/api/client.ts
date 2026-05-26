@@ -50,6 +50,7 @@ import type {
   MCPClientBinding,
   MCPClientBindingListResponse,
   MCPClientBindingUpsert,
+  SRTGenerationResponse,
 } from './types';
 
 function formatErrorDetail(detail: unknown, fallback: string): string {
@@ -919,6 +920,31 @@ class ApiClient {
     }
 
     return response.blob();
+  }
+
+  async generateSRT(
+    file: File,
+    profileId: string,
+    engine: string,
+    language: string,
+  ): Promise<SRTGenerationResponse> {
+    const url = `${this.getBaseUrl()}/generate/srt`;
+    const formData = new FormData();
+    formData.append('srt_file', file);
+    formData.append('profile_id', profileId);
+    formData.append('language', language);
+    formData.append('engine', engine);
+
+    const response = await fetch(url, { method: 'POST', body: formData });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        detail: response.statusText,
+      }));
+      throw new Error(formatErrorDetail(error.detail, `HTTP error! status: ${response.status}`));
+    }
+
+    return response.json();
   }
 }
 

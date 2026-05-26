@@ -521,3 +521,25 @@ export interface MCPClientBindingUpsert {
 export interface MCPClientBindingListResponse {
   items: MCPClientBinding[];
 }
+
+export interface SRTCueResult {
+  cue_index: number;
+  cue_start_ms: number;
+  cue_end_ms: number;
+  text: string;
+  fit_ratio: number;
+  fit_risk: 'low' | 'medium' | 'high';
+  status: 'success' | 'failed';
+  error?: string;
+}
+
+export interface SRTGenerationResponse {
+  story_id: string;
+  story_name: string;
+  total_cues: number;
+  success_count: number;
+  failed_count: number;
+  items: SRTCueResult[];
+  mix_audio_path?: string;
+  status: string;
+}

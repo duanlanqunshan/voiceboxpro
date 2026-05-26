@@ -1,0 +1,7 @@
+packages:
+  - 'app'
+  - 'web'
+  - 'landing'
+allowBuilds:
+  esbuild: true
+  sharp: true

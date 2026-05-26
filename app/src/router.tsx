@@ -10,6 +10,7 @@ import { CapturesTab } from '@/components/CapturesTab/CapturesTab';
 import { EffectsTab } from '@/components/EffectsTab/EffectsTab';
 import { MainEditor } from '@/components/MainEditor/MainEditor';
 import { ModelsTab } from '@/components/ModelsTab/ModelsTab';
+import { SRTTab } from '@/components/SRTTab/SRTTab';
 import { AboutPage } from '@/components/ServerTab/AboutPage';
 import { CapturesPage } from '@/components/ServerTab/CapturesPage';
 import { ChangelogPage } from '@/components/ServerTab/ChangelogPage';
@@ -127,7 +128,12 @@ const effectsRoute = createRoute({
   component: EffectsTab,
 });
 
-// Models route
+const srtRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/srt',
+  component: SRTTab,
+});
+
 const modelsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/models',
@@ -206,6 +212,7 @@ const routeTree = rootRoute.addChildren([
   capturesRoute,
   voicesRoute,
   effectsRoute,
+  srtRoute,
   modelsRoute,
   settingsRoute.addChildren([
     settingsGeneralRoute,
