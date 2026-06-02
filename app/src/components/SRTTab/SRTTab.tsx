@@ -1,24 +1,20 @@
-import { useState, useCallback, useRef } from 'react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
 import { FileText, Upload, Play, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
 import type { SRTGenerationResponse } from '@/lib/api/types';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { useProfiles } from '@/lib/hooks/useProfiles';
+import { getLanguageOptionsForEngine } from '@/lib/constants/languages';
 import { cn } from '@/lib/utils/cn';
 
 const ENGINES = [
-  { value: 'qwen', label: 'Qwen TTS' },
+  { value: 'qwen', label: 'Qwen3-TTS' },
+  { value: 'qwen_custom_voice', label: 'Qwen CustomVoice' },
   { value: 'luxtts', label: 'LuxTTS' },
-  { value: 'chatterbox', label: 'Chatterbox' },
+  { value: 'chatterbox', label: 'Chatterbox Multilingual' },
+  { value: 'chatterbox_turbo', label: 'Chatterbox Turbo' },
   { value: 'tada', label: 'TADA' },
-  { value: 'kokoro', label: 'Kokoro' },
-];
-
-const LANGUAGES = [
-  { value: 'zh', label: '中文' },
-  { value: 'en', label: 'English' },
-  { value: 'ja', label: '日本語' },
-  { value: 'ko', label: '한국어' },
+  { value: 'kokoro', label: 'Kokoro 82M' },
 ];
 
 function formatTime(ms: number) {
@@ -36,6 +32,7 @@ function riskColor(risk: string) {
 }
 
 export function SRTTab() {
+  const { data: profiles, isLoading: profilesLoading } = useProfiles();
   const [file, setFile] = useState<File | null>(null);
   const [profileId, setProfileId] = useState('');
   const [engine, setEngine] = useState('qwen');
@@ -44,6 +41,40 @@ export function SRTTab() {
   const [result, setResult] = useState<SRTGenerationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const selectedProfile = useMemo(
+    () => profiles?.find((profile) => profile.id === profileId) ?? null,
+    [profiles, profileId],
+  );
+
+  const availableProfiles = useMemo(() => {
+    if (!profiles) return [];
+    return profiles.filter((profile) => {
+      if (profile.voice_type === 'preset') {
+        return profile.preset_engine === engine;
+      }
+      return !['qwen_custom_voice', 'kokoro'].includes(engine);
+    });
+  }, [profiles, engine]);
+
+  const languageOptions = useMemo(() => getLanguageOptionsForEngine(engine), [engine]);
+
+  useEffect(() => {
+    if (!profileId && availableProfiles.length > 0) {
+      setProfileId(availableProfiles[0].id);
+      return;
+    }
+
+    if (profileId && !availableProfiles.some((profile) => profile.id === profileId)) {
+      setProfileId(availableProfiles[0]?.id ?? '');
+    }
+  }, [availableProfiles, profileId]);
+
+  useEffect(() => {
+    if (!languageOptions.some((option) => option.value === language)) {
+      setLanguage(languageOptions[0]?.value ?? 'en');
+    }
+  }, [language, languageOptions]);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -130,12 +161,25 @@ export function SRTTab() {
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Profile ID</label>
-                <Input
+                <label className="text-sm font-medium">语音</label>
+                <select
                   value={profileId}
                   onChange={(e) => setProfileId(e.target.value)}
-                  placeholder="输入语音 Profile ID"
-                />
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  disabled={profilesLoading || availableProfiles.length === 0}
+                >
+                  {availableProfiles.length === 0 ? (
+                    <option value="">
+                      {profilesLoading ? '正在加载语音...' : '当前引擎没有可用语音'}
+                    </option>
+                  ) : (
+                    availableProfiles.map((profile) => (
+                      <option key={profile.id} value={profile.id}>
+                        {profile.name}
+                      </option>
+                    ))
+                  )}
+                </select>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">引擎</label>
@@ -156,12 +200,26 @@ export function SRTTab() {
                   onChange={(e) => setLanguage(e.target.value)}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
-                  {LANGUAGES.map((l) => (
+                  {languageOptions.map((l) => (
                     <option key={l.value} value={l.value}>{l.label}</option>
                   ))}
                 </select>
               </div>
             </div>
+
+            {selectedProfile && (
+              <div className="rounded-lg border border-border bg-card/50 px-4 py-3 text-sm text-muted-foreground">
+                使用语音 `{" "}`
+                <span className="font-medium text-foreground">{selectedProfile.name}</span>
+                {selectedProfile.voice_type === 'preset' ? '（预置语音）' : '（克隆语音）'}
+              </div>
+            )}
+
+            {!profilesLoading && availableProfiles.length === 0 && (
+              <div className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+                当前引擎没有可用语音。`Qwen CustomVoice` 和 `Kokoro` 需要对应的预置语音档案，其他引擎需要可克隆语音档案。
+              </div>
+            )}
 
             <Button type="submit" disabled={loading || !file || !profileId.trim()} size="lg">
               {loading ? (
@@ -206,7 +264,7 @@ export function SRTTab() {
                 </div>
                 {result.mix_audio_path && (
                   <Button variant="outline" size="sm" asChild>
-                    <a href={`${apiClient.getAudioUrl('')}${result.mix_audio_path}`} download>
+                    <a href={`${apiClient.getServerUrl()}${result.mix_audio_path}`} download>
                       <Download className="h-4 w-4" />
                       下载混合音频
                     </a>
@@ -241,7 +299,9 @@ export function SRTTab() {
                           <td className="px-4 py-3 font-mono text-xs whitespace-nowrap">
                             {formatTime(item.cue_start_ms)} → {formatTime(item.cue_end_ms)}
                           </td>
-                          <td className="px-4 py-3 max-w-[200px] truncate">{item.text}</td>
+                          <td className="px-4 py-3 max-w-[280px]" title={item.text}>
+                            <div className="line-clamp-2 break-words">{item.text}</div>
+                          </td>
                           <td className="px-4 py-3 font-mono">{item.fit_ratio.toFixed(3)}</td>
                           <td className="px-4 py-3">
                             <span className={cn('px-2 py-0.5 rounded-full text-xs border', riskColor(item.fit_risk))}>
@@ -251,6 +311,8 @@ export function SRTTab() {
                           <td className="px-4 py-3">
                             {item.status === 'completed' ? (
                               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                            ) : item.status === 'pending' ? (
+                              <span className="text-muted-foreground text-xs">等待中</span>
                             ) : (
                               <span className="text-destructive text-xs" title={item.error}>失败</span>
                             )}

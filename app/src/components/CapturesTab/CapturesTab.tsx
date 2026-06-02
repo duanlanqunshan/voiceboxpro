@@ -67,6 +67,7 @@ import type {
 import type { LanguageCode } from '@/lib/constants/languages';
 import { BOTTOM_SAFE_AREA_PADDING } from '@/lib/constants/ui';
 import { useCaptureRecordingSession } from '@/lib/hooks/useCaptureRecordingSession';
+import { useProfiles } from '@/lib/hooks/useProfiles';
 import { useDictationReadiness } from '@/lib/hooks/useDictationReadiness';
 import { useCaptureSettings } from '@/lib/hooks/useSettings';
 import { cn } from '@/lib/utils/cn';
@@ -176,10 +177,7 @@ export function CapturesTab() {
     queryFn: () => apiClient.listCaptures(200, 0),
   });
 
-  const { data: profiles } = useQuery({
-    queryKey: ['profiles'],
-    queryFn: () => apiClient.listProfiles(),
-  });
+  const { data: profiles } = useProfiles();
 
   const captures = capturesData?.items ?? [];
 

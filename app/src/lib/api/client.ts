@@ -74,6 +74,10 @@ class ApiClient {
     return serverUrl;
   }
 
+  getServerUrl(): string {
+    return this.getBaseUrl();
+  }
+
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = `${this.getBaseUrl()}${endpoint}`;
     const response = await fetch(url, {
