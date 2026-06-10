@@ -79,6 +79,7 @@ The two cloud incumbents sit on opposite halves of the voice I/O loop — Eleven
 - **Expressive speech** — paralinguistic tags like `[laugh]`, `[sigh]`, `[gasp]` via Chatterbox Turbo; natural-language delivery control via Qwen CustomVoice
 - **Unlimited length** — auto-chunking with crossfade for scripts, articles, and chapters
 - **Stories editor** — multi-track timeline for conversations, podcasts, and narratives
+- **SRT subtitle-to-speech** — import any SRT/ASS subtitle file and generate natural speech that respects the original timing, with per-engine voice selection and language control
 - **Voice input** — global dictation hotkey with push-to-talk and toggle modes, accessibility-verified auto-paste on macOS, in-app mic on every text field, Whisper-based STT
 - **Agent voice output** — one tool call (`voicebox.speak`) and any MCP-aware agent (Claude Code, Cursor, Cline) speaks to you in a voice you've cloned
 - **Voice personalities** — attach a free-form persona to any voice profile, then Compose, Rewrite, or Respond via a bundled local LLM — agents can invoke the same modes over MCP
