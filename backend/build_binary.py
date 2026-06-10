@@ -145,6 +145,15 @@ def build_server(cuda=False):
             "spacy_pkuseg",
             "--hidden-import",
             "backend.backends.luxtts_backend",
+            # SRT subtitle-to-speech
+            "--hidden-import",
+            "backend.routes.srt_generations",
+            "--hidden-import",
+            "backend.utils.srt_parser",
+            "--hidden-import",
+            "backend.utils.audio_fitting",
+            # Kokoro TTS uses misaki which loads spacy and unidic at
+            # runtime via spacy.cli.download() / unidic module — bundle them
             "--hidden-import",
             "zipvoice",
             "--hidden-import",
