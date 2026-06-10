@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { apiClient } from '@/lib/api/client';
 import { BOTTOM_SAFE_AREA_PADDING } from '@/lib/constants/ui';
+import { useProfiles } from '@/lib/hooks/useProfiles';
 import { cn } from '@/lib/utils/cn';
 import { usePlatform } from '@/platform/PlatformContext';
 import { usePlayerStore } from '@/stores/playerStore';
@@ -64,10 +65,7 @@ export function AudioTab() {
     enabled: platform.metadata.isTauri,
   });
 
-  const { data: profiles } = useQuery({
-    queryKey: ['profiles'],
-    queryFn: () => apiClient.listProfiles(),
-  });
+  const { data: profiles } = useProfiles();
 
   const createChannel = useMutation({
     mutationFn: (data: { name: string; device_ids: string[] }) => apiClient.createChannel(data),
@@ -399,10 +397,7 @@ function ChannelVoicesList({ channelId }: { channelId: string }) {
     queryFn: () => apiClient.getChannelVoices(channelId),
   });
 
-  const { data: profiles } = useQuery({
-    queryKey: ['profiles'],
-    queryFn: () => apiClient.listProfiles(),
-  });
+  const { data: profiles } = useProfiles();
 
   const voiceNames =
     voices?.profile_ids.map((id) => profiles?.find((p) => p.id === id)?.name).filter(Boolean) || [];

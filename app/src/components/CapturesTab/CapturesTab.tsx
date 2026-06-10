@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
 import { listen, type UnlistenFn } from '@tauri-apps/api/event';
+import { usePlatform } from '@/platform/PlatformContext';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeFile, writeTextFile } from '@tauri-apps/plugin-fs';
 import {
@@ -67,6 +68,7 @@ import type {
 import type { LanguageCode } from '@/lib/constants/languages';
 import { BOTTOM_SAFE_AREA_PADDING } from '@/lib/constants/ui';
 import { useCaptureRecordingSession } from '@/lib/hooks/useCaptureRecordingSession';
+import { useProfiles } from '@/lib/hooks/useProfiles';
 import { useDictationReadiness } from '@/lib/hooks/useDictationReadiness';
 import { useCaptureSettings } from '@/lib/hooks/useSettings';
 import { cn } from '@/lib/utils/cn';
@@ -132,6 +134,7 @@ function SourceBadge({ source }: { source: CaptureSource }) {
 type PlaybackState = 'idle' | 'generating' | 'playing';
 
 export function CapturesTab() {
+  const platform = usePlatform();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -176,10 +179,7 @@ export function CapturesTab() {
     queryFn: () => apiClient.listCaptures(200, 0),
   });
 
-  const { data: profiles } = useQuery({
-    queryKey: ['profiles'],
-    queryFn: () => apiClient.listProfiles(),
-  });
+  const { data: profiles } = useProfiles();
 
   const captures = capturesData?.items ?? [];
 
@@ -202,6 +202,7 @@ export function CapturesTab() {
   // the race window between ``setSelectedId(new)`` and the refetched list
   // actually containing the new row.
   useEffect(() => {
+    if (!platform.metadata.isTauri) return;
     const unlistens: Promise<UnlistenFn>[] = [];
     unlistens.push(
       listen<{ capture: CaptureResponse }>('capture:created', (event) => {

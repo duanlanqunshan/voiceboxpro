@@ -11,4 +11,49 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return undefined;
+          }
+
+          if (id.includes('@tauri-apps')) {
+            return 'tauri';
+          }
+
+          if (
+            id.includes('@tanstack/react-router') ||
+            id.includes('@tanstack/react-query')
+          ) {
+            return 'tanstack';
+          }
+
+          if (
+            id.includes('@radix-ui') ||
+            id.includes('lucide-react') ||
+            id.includes('framer-motion') ||
+            id.includes('motion')
+          ) {
+            return 'ui';
+          }
+
+          if (
+            id.includes('wavesurfer.js') ||
+            id.includes('react-sound-visualizer') ||
+            id.includes('@dnd-kit')
+          ) {
+            return 'media';
+          }
+
+          return 'vendor';
+        },
+      },
+    },
+  },
 });

@@ -7,6 +7,7 @@ export function useProfiles() {
   return useQuery({
     queryKey: ['profiles'],
     queryFn: () => apiClient.listProfiles(),
+    staleTime: 60_000,
   });
 }
 

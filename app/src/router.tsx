@@ -5,27 +5,51 @@ import {
   Outlet,
   redirect,
 } from '@tanstack/react-router';
+import { Suspense, lazy } from 'react';
 import { AppFrame } from '@/components/AppFrame/AppFrame';
-import { CapturesTab } from '@/components/CapturesTab/CapturesTab';
-import { EffectsTab } from '@/components/EffectsTab/EffectsTab';
 import { MainEditor } from '@/components/MainEditor/MainEditor';
-import { ModelsTab } from '@/components/ModelsTab/ModelsTab';
-import { AboutPage } from '@/components/ServerTab/AboutPage';
-import { CapturesPage } from '@/components/ServerTab/CapturesPage';
-import { ChangelogPage } from '@/components/ServerTab/ChangelogPage';
-import { GeneralPage } from '@/components/ServerTab/GeneralPage';
-import { GenerationPage } from '@/components/ServerTab/GenerationPage';
-import { GpuPage } from '@/components/ServerTab/GpuPage';
-import { LogsPage } from '@/components/ServerTab/LogsPage';
-import { MCPPage } from '@/components/ServerTab/MCPPage';
-import { SettingsLayout } from '@/components/ServerTab/ServerTab';
 import { Sidebar } from '@/components/Sidebar';
-import { StoriesTab } from '@/components/StoriesTab/StoriesTab';
 import { Toaster } from '@/components/ui/toaster';
-import { VoicesTab } from '@/components/VoicesTab/VoicesTab';
 import { useGenerationProgress } from '@/lib/hooks/useGenerationProgress';
 import { useModelDownloadToast } from '@/lib/hooks/useModelDownloadToast';
 import { MODEL_DISPLAY_NAMES, useRestoreActiveTasks } from '@/lib/hooks/useRestoreActiveTasks';
+
+const StoriesTab = lazy(() => import('@/components/StoriesTab/StoriesTab').then((m) => ({ default: m.StoriesTab })));
+const VoicesTab = lazy(() => import('@/components/VoicesTab/VoicesTab').then((m) => ({ default: m.VoicesTab })));
+const CapturesTab = lazy(() => import('@/components/CapturesTab/CapturesTab').then((m) => ({ default: m.CapturesTab })));
+const EffectsTab = lazy(() => import('@/components/EffectsTab/EffectsTab').then((m) => ({ default: m.EffectsTab })));
+const SRTTab = lazy(() => import('@/components/SRTTab/SRTTab').then((m) => ({ default: m.SRTTab })));
+const ModelsTab = lazy(() => import('@/components/ModelsTab/ModelsTab').then((m) => ({ default: m.ModelsTab })));
+const SettingsLayout = lazy(() => import('@/components/ServerTab/ServerTab').then((m) => ({ default: m.SettingsLayout })));
+const GeneralPage = lazy(() => import('@/components/ServerTab/GeneralPage').then((m) => ({ default: m.GeneralPage })));
+const GenerationPage = lazy(() => import('@/components/ServerTab/GenerationPage').then((m) => ({ default: m.GenerationPage })));
+const CapturesPage = lazy(() => import('@/components/ServerTab/CapturesPage').then((m) => ({ default: m.CapturesPage })));
+const MCPPage = lazy(() => import('@/components/ServerTab/MCPPage').then((m) => ({ default: m.MCPPage })));
+const GpuPage = lazy(() => import('@/components/ServerTab/GpuPage').then((m) => ({ default: m.GpuPage })));
+const LogsPage = lazy(() => import('@/components/ServerTab/LogsPage').then((m) => ({ default: m.LogsPage })));
+const ChangelogPage = lazy(() => import('@/components/ServerTab/ChangelogPage').then((m) => ({ default: m.ChangelogPage })));
+const AboutPage = lazy(() => import('@/components/ServerTab/AboutPage').then((m) => ({ default: m.AboutPage })));
+
+function RouteSkeleton() {
+  return (
+    <div className="flex h-full min-h-[320px] items-center justify-center">
+      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <div className="h-4 w-4 rounded-full border-2 border-current border-r-transparent animate-spin" />
+        正在加载页面...
+      </div>
+    </div>
+  );
+}
+
+function withSuspense(Component: React.ComponentType) {
+  return function SuspendedRouteComponent() {
+    return (
+      <Suspense fallback={<RouteSkeleton />}>
+        <Component />
+      </Suspense>
+    );
+  };
+}
 
 // Simple platform check that works in both web and Tauri
 const isMacOS = () => navigator.platform.toLowerCase().includes('mac');
@@ -103,91 +127,96 @@ const indexRoute = createRoute({
 const storiesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/stories',
-  component: StoriesTab,
+  component: withSuspense(StoriesTab),
 });
 
 // Voices route
 const voicesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/voices',
-  component: VoicesTab,
+  component: withSuspense(VoicesTab),
 });
 
 // Captures route (prototype — will replace AudioTab once the new flow is ready)
 const capturesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/captures',
-  component: CapturesTab,
+  component: withSuspense(CapturesTab),
 });
 
 // Effects route
 const effectsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/effects',
-  component: EffectsTab,
+  component: withSuspense(EffectsTab),
 });
 
-// Models route
+const srtRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/srt',
+  component: withSuspense(SRTTab),
+});
+
 const modelsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/models',
-  component: ModelsTab,
+  component: withSuspense(ModelsTab),
 });
 
 // Settings layout route (parent for sub-tabs)
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/settings',
-  component: SettingsLayout,
+  component: withSuspense(SettingsLayout),
 });
 
 // Settings sub-routes
 const settingsGeneralRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: '/',
-  component: GeneralPage,
+  component: withSuspense(GeneralPage),
 });
 
 const settingsGenerationRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: '/generation',
-  component: GenerationPage,
+  component: withSuspense(GenerationPage),
 });
 
 const settingsCapturesRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: '/captures',
-  component: CapturesPage,
+  component: withSuspense(CapturesPage),
 });
 
 const settingsMCPRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: '/mcp',
-  component: MCPPage,
+  component: withSuspense(MCPPage),
 });
 
 const settingsGpuRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: '/gpu',
-  component: GpuPage,
+  component: withSuspense(GpuPage),
 });
 
 const settingsChangelogRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: '/changelog',
-  component: ChangelogPage,
+  component: withSuspense(ChangelogPage),
 });
 
 const settingsLogsRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: '/logs',
-  component: LogsPage,
+  component: withSuspense(LogsPage),
 });
 
 const settingsAboutRoute = createRoute({
   getParentRoute: () => settingsRoute,
   path: '/about',
-  component: AboutPage,
+  component: withSuspense(AboutPage),
 });
 
 // Redirect old /server path to /settings
@@ -206,6 +235,7 @@ const routeTree = rootRoute.addChildren([
   capturesRoute,
   voicesRoute,
   effectsRoute,
+  srtRoute,
   modelsRoute,
   settingsRoute.addChildren([
     settingsGeneralRoute,

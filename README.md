@@ -194,6 +194,17 @@ Multi-voice timeline editor for conversations, podcasts, and narratives.
 - Auto-playback with synchronized playhead
 - Version pinning per track clip
 
+### SRT Subtitle-to-Speech
+
+Upload an SRT subtitle file and generate timed speech for every cue, with the original timestamps locked — audio is time-stretched to fit each cue window.
+
+- **Fixed timeline** — SRT start/end timestamps are never modified; audio is stretched or compressed to fit
+- **Risk grading** — each cue's stretch ratio is graded (low / medium / high) so you can spot problematic cues before committing
+- **Non-destructive text cleaning** — only whitespace normalization and zero-width character removal
+- **Per-cue retry** — failed cues don't block others; each retries independently up to `max_retries`
+- **Web UI** — drag-drop SRT upload, engine/language selection, result table with risk badges, per-cue audio download
+- **REST API** — `POST /generate/srt` with `srt_file`, `profile_id`, `language`, `engine`
+
 ### Global Dictation & Voice Input
 
 The other half of the voice I/O loop. Hold a hotkey anywhere on your system, speak, release — on macOS the transcript pastes straight into the focused text field. Or hit the mic on any Voicebox text input and dictate directly into the app.
@@ -298,6 +309,13 @@ curl -X POST http://127.0.0.1:17493/speak \
 curl -X POST http://127.0.0.1:17493/transcribe \
   -F "audio=@recording.wav" \
   -F "model=whisper-turbo"
+
+# Generate speech from SRT subtitles
+curl -X POST http://127.0.0.1:17493/generate/srt \
+  -F "srt_file=@subtitles.srt" \
+  -F "profile_id=abc123" \
+  -F "language=en" \
+  -F "engine=qwen"
 
 # List voice profiles
 curl http://127.0.0.1:17493/profiles
@@ -416,7 +434,7 @@ just dev     # starts backend + desktop app
 
 Install [just](https://github.com/casey/just): `brew install just` or `cargo install just`. Run `just --list` to see all commands.
 
-**Prerequisites:** [Bun](https://bun.sh), [Rust](https://rustup.rs), [Python 3.11+](https://python.org), [Tauri Prerequisites](https://v2.tauri.app/start/prerequisites/), and [Xcode](https://developer.apple.com/xcode/) on macOS.
+**Prerequisites:** [pnpm](https://pnpm.io), [Rust](https://rustup.rs), [Python 3.11+](https://python.org), [FFmpeg](https://ffmpeg.org/download.html), [Tauri Prerequisites](https://v2.tauri.app/start/prerequisites/), and [Xcode](https://developer.apple.com/xcode/) on macOS.
 
 The repo ships a pre-wired `.mcp.json` at the root — running Claude Code inside this checkout picks up the Voicebox MCP tools automatically once the dev app is running.
 

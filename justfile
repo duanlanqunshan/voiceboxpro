@@ -95,7 +95,7 @@ setup-python:
 
 # Install JavaScript dependencies
 setup-js:
-    bun install
+    pnpm install
 
 # ─── Development ──────────────────────────────────────────────────────
 
@@ -118,7 +118,7 @@ dev: _ensure-venv _ensure-sidecar
     trap '[ -n "$backend_pid" ] && kill "$backend_pid" 2>/dev/null; wait' EXIT
 
     echo "Starting Tauri desktop app..."
-    cd {{ tauri_dir }} && bun run tauri dev
+    cd {{ tauri_dir }} && pnpm run tauri dev
 
 [windows]
 dev: _ensure-venv _ensure-sidecar
@@ -129,7 +129,7 @@ dev: _ensure-venv _ensure-sidecar
         Start-Sleep -Seconds 2; \
     }; \
     Write-Host "Starting Tauri desktop app..."; \
-    try { Set-Location "{{ tauri_dir }}"; bun run tauri dev } finally { if ($backendJob) { taskkill /PID $backendJob.Id /T /F 2>$null | Out-Null } }
+    try { Set-Location "{{ tauri_dir }}"; pnpm run tauri dev } finally { if ($backendJob) { taskkill /PID $backendJob.Id /T /F 2>$null | Out-Null } }
 
 # Start backend only
 [unix]
@@ -143,11 +143,11 @@ dev-backend: _ensure-venv
 # Start Tauri desktop app only (backend must be running separately)
 [unix]
 dev-frontend: _ensure-sidecar
-    cd {{ tauri_dir }} && bun run tauri dev
+    cd {{ tauri_dir }} && pnpm run tauri dev
 
 [windows]
 dev-frontend: _ensure-sidecar
-    Set-Location "{{ tauri_dir }}"; bun run tauri dev
+    Set-Location "{{ tauri_dir }}"; pnpm run tauri dev
 
 # Start backend (if not already running) + web app (no Tauri)
 [unix]
@@ -167,7 +167,7 @@ dev-web: _ensure-venv
 
     trap '[ -n "$backend_pid" ] && kill "$backend_pid" 2>/dev/null; wait' EXIT
 
-    cd {{ web_dir }} && bun run dev
+    cd {{ web_dir }} && pnpm run dev
 
 [windows]
 dev-web: _ensure-venv
@@ -178,7 +178,7 @@ dev-web: _ensure-venv
         Start-Sleep -Seconds 2; \
     }; \
     Write-Host "Starting web app..."; \
-    try { Set-Location "{{ web_dir }}"; bun run dev } finally { if ($backendJob) { taskkill /PID $backendJob.Id /T /F 2>$null | Out-Null } }
+    try { Set-Location "{{ web_dir }}"; pnpm run dev } finally { if ($backendJob) { taskkill /PID $backendJob.Id /T /F 2>$null | Out-Null } }
 
 # Kill all dev processes
 [unix]
@@ -233,20 +233,20 @@ build-local: build-server build-server-cuda build-tauri
 # Build Tauri desktop app
 [unix]
 build-tauri:
-    cd {{ tauri_dir }} && bun run tauri build
+    cd {{ tauri_dir }} && pnpm run tauri build
 
 [windows]
 build-tauri:
-    Set-Location "{{ tauri_dir }}"; bun run tauri build
+    Set-Location "{{ tauri_dir }}"; pnpm run tauri build
 
 # Build web app
 [unix]
 build-web:
-    cd {{ web_dir }} && bun run build
+    cd {{ web_dir }} && pnpm run build
 
 [windows]
 build-web:
-    Set-Location "{{ web_dir }}"; bun run build
+    Set-Location "{{ web_dir }}"; pnpm run build
 
 # ─── Code Quality ────────────────────────────────────────────────────
 
@@ -255,7 +255,7 @@ check: check-js check-python
 
 # JS/TS: lint + format + typecheck (Biome)
 check-js:
-    bun run check
+    pnpm run check
 
 # Python: lint + format check (ruff)
 check-python: _ensure-venv
@@ -264,17 +264,17 @@ check-python: _ensure-venv
 
 # Lint with Biome (JS) + ruff (Python)
 lint: _ensure-venv
-    bun run lint
+    pnpm run lint
     {{ venv_bin }}/ruff check {{ backend_dir }}
 
 # Format with Biome (JS) + ruff (Python)
 format: _ensure-venv
-    bun run format
+    pnpm run format
     {{ venv_bin }}/ruff format {{ backend_dir }}
 
 # Fix lint + format issues (JS + Python)
 fix: _ensure-venv
-    bun run check:fix
+    pnpm run check:fix
     {{ venv_bin }}/ruff check {{ backend_dir }} --fix
     {{ venv_bin }}/ruff format {{ backend_dir }}
 
@@ -416,4 +416,4 @@ _ensure-venv:
 # Ensure Tauri dev sidecar placeholder exists
 [private]
 _ensure-sidecar:
-    bun run setup:dev
+    pnpm run setup:dev

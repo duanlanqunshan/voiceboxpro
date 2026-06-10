@@ -23,11 +23,13 @@ def register_routers(app: FastAPI) -> None:
     from .speak import router as speak_router
     from .mcp_bindings import router as mcp_bindings_router
     from .events import router as events_router
+    from .srt_generations import router as srt_generations_router
 
     app.include_router(health_router)
     app.include_router(profiles_router)
     app.include_router(channels_router)
     app.include_router(generations_router)
+    app.include_router(srt_generations_router)
     app.include_router(history_router)
     app.include_router(transcription_router)
     app.include_router(llm_router)

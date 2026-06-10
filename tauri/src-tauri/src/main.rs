@@ -439,12 +439,12 @@ async fn start_server(
                 eprintln!("DEV MODE: No server found on port {}", SERVER_PORT);
                 eprintln!("");
                 eprintln!("Start the Python server in a separate terminal:");
-                eprintln!("  bun run dev:server");
+                eprintln!("  pnpm run dev:server");
                 eprintln!("=================================================================");
                 eprintln!("");
             }
 
-            return Err(format!("Failed to start server. In dev mode, run 'bun run dev:server' in a separate terminal."));
+            return Err(format!("Failed to start server. In dev mode, run 'pnpm run dev:server' in a separate terminal."));
         }
     };
 
@@ -516,10 +516,10 @@ async fn start_server(
                 eprintln!("DEV MODE: Server binary failed to start");
                 eprintln!("");
                 eprintln!("Start the Python server in a separate terminal:");
-                eprintln!("  bun run dev:server");
+                eprintln!("  pnpm run dev:server");
                 eprintln!("=================================================================");
                 eprintln!("");
-                return Err("Dev mode: Start server manually with 'bun run dev:server'".to_string());
+                return Err("Dev mode: Start server manually with 'pnpm run dev:server'".to_string());
             }
 
             #[cfg(not(debug_assertions))]
@@ -638,10 +638,10 @@ async fn start_server(
                     eprintln!("DEV MODE: No bundled server binary available");
                     eprintln!("");
                     eprintln!("Start the Python server in a separate terminal:");
-                    eprintln!("  bun run dev:server");
+                    eprintln!("  pnpm run dev:server");
                     eprintln!("=================================================================");
                     eprintln!("");
-                    return Err("Dev mode: Start server manually with 'bun run dev:server'".to_string());
+                    return Err("Dev mode: Start server manually with 'pnpm run dev:server'".to_string());
                 }
 
                 #[cfg(not(debug_assertions))]

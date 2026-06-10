@@ -5,7 +5,7 @@ Landing page for voicebox.sh - a modern Next.js 16 application.
 ## Tech Stack
 
 - **Next.js 16** with App Router
-- **Bun** for package management
+- **pnpm** for package management
 - **Tailwind CSS** with shadcn/ui components
 - **TypeScript** with strict mode
 - **Railway** deployment ready
@@ -14,19 +14,19 @@ Landing page for voicebox.sh - a modern Next.js 16 application.
 
 ### Prerequisites
 
-- Bun installed ([bun.sh](https://bun.sh))
+- pnpm installed ([pnpm.io](https://pnpm.io))
 
 ### Installation
 
 ```bash
 cd landing
-bun install
+pnpm install
 ```
 
 ### Development
 
 ```bash
-bun run dev
+pnpm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view the landing page.
@@ -34,13 +34,13 @@ Open [http://localhost:3000](http://localhost:3000) to view the landing page.
 ### Build
 
 ```bash
-bun run build
+pnpm run build
 ```
 
 ### Production
 
 ```bash
-bun run start
+pnpm run start
 ```
 
 ## Configuration
@@ -62,9 +62,9 @@ Replace `USERNAME` in `src/lib/constants.ts` with your actual GitHub username.
 2. Railway will auto-detect `nixpacks.toml`
 3. Set root directory to `landing/`
 4. Railway will automatically:
-   - Install dependencies with `bun install`
-   - Build with `bun run build`
-   - Start with `bun run start`
+   - Install dependencies with `pnpm install`
+   - Build with `pnpm run build`
+   - Start with `pnpm run start`
 5. Configure custom domain `voicebox.sh` in Railway settings
 
 ## Project Structure
